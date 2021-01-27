@@ -1,7 +1,7 @@
 mod api;
 mod app;
 mod config;
-mod google_oauth;
+mod discord_oauth;
 
 use {
     crate::{
@@ -32,7 +32,7 @@ async fn main() -> Result<()> {
     let mut app = tide::with_state(state);
     app.middleware(session_middleware);
     attach_apis(&mut app);
-    app.listen("0.0.0.0:8080").await?;
+    app.listen("0.0.0.0:8000").await?;
 
     Ok(())
 }

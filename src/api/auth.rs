@@ -10,7 +10,6 @@ use {
 struct AuthRequestQuery {
     code: String,
     state: String,
-    scope: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -19,12 +18,12 @@ struct UserInfoResponse {
 }
 
 pub(super) async fn login(req: Request) -> Result<Redirect<String>> {
-    let oauth_client = &req.state().google_oauth_client;
+    let oauth_client = &req.state().discord_oauth_client;
 
     let (authorize_url, _csrf_state) = oauth_client
         .authorize_url(CsrfToken::new_random)
         .add_scope(Scope::new(
-            "https://www.googleapis.com/auth/userinfo.email".to_string(),
+            "email".to_string(),
         ))
         .url();
 
@@ -34,14 +33,14 @@ pub(super) async fn login(req: Request) -> Result<Redirect<String>> {
 pub(super) async fn login_authorized(req: Request) -> Result {
     let query: AuthRequestQuery = req.query()?;
     let code = AuthorizationCode::new(query.code);
-    let token_req = req.state().google_oauth_client.exchange_code(code);
+    let token_req = req.state().discord_oauth_client.exchange_code(code);
     let token = token_req
         .request_async(oauth2::reqwest::async_http_client)
         .await
         .map_err(Fail::compat)?;
     let access_token = token.access_token();
 
-    let userinfo: UserInfoResponse = surf::get("https://www.googleapis.com/oauth2/v2/userinfo")
+    let userinfo: UserInfoResponse = surf::get("https://discordapp.com/api/users/@me")
         .set_header(
             surf::http_types::headers::AUTHORIZATION,
             format!("Bearer {}", access_token.secret()),

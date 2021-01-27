@@ -9,11 +9,11 @@ pub struct Opt {
 #[derive(Clone, Debug, Deserialize)]
 pub struct AppConfig {
     pub secret_key: String,
-    pub google_oauth: GoogleOAuthConfig,
+    pub discord_oauth: DiscordOAuthConfig,
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct GoogleOAuthConfig {
+pub struct DiscordOAuthConfig {
     pub client_id: String,
     pub client_secret: String,
     pub redirect_url: String,
